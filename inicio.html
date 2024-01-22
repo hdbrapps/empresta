@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consulta de CNPJ</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    body {
+      font-family: 'Sora', Arial, sans-serif; /* Adiciona 'Sora' como a primeira escolha de fonte */
+      margin: 20px;
+    }
+
+    h1,
+    h2 {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    label,
+    input,
+    button {
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+    }
+
+    input {
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .result-container {
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      background-color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Consulta de CNPJ</h1>
+    <label for="cnpjInput">Digite o CNPJ:</label>
+    <input type="text" id="cnpjInput" placeholder="Digite o CNPJ">
+    <button onclick="consultarCNPJ()">Consultar</button>
+
+    <div class="result-container" id="result"></div>
+  </div>
+
+  <script>
+    async function consultarCNPJ() {
+      const cnpjInput = document.getElementById('cnpjInput');
+      const resultDiv = document.getElementById('result');
+
+      // Remover caracteres não numéricos do CNPJ
+      const cnpj = cnpjInput.value.replace(/\D/g, '');
+
+      try {
+        const response = await axios.get(`https://publica.cnpj.ws/cnpj/${cnpj}`);
+        const empresa = response.data;
+
+        // Construir a exibição dos dados
+        let html = '<h2>Dados da Empresa</h2>';
+        html += '<pre>' + JSON.stringify(empresa, null, 2)
+          .replace(/"/g, '')
+          .replace(/,/g, '')
+          .replace(/\]/g, '')
+          .replace(/\}/g, '') +
+          '</pre>';
+        resultDiv.innerHTML = html;
+      } catch (error) {
+        console.error('Erro ao consultar CNPJ:', error);
+
+        if (error.response && error.response.status === 404) {
+          resultDiv.innerHTML = '<p>CNPJ não encontrado. Verifique se o CNPJ está correto.</p>';
+        } else {
+          resultDiv.innerHTML = '<p>Não foi possível obter os dados da empresa. Tente novamente mais tarde.</p>';
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>
